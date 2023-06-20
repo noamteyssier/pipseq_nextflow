@@ -232,14 +232,14 @@ process BuildH5AD {
 
 process PlotQC {
     
-    publishDir "${params.outdir}/qc/${sample_id}", mode: 'symlink'
+    publishDir "${params.outdir}/qc", mode: 'symlink'
     conda "${params.scanpy_env}"
 
     input:
     tuple val(sample_id), path(h5ad)
 
     output:
-    path("rankplot.svg")
+    path("${sample_id}_rankplot.svg")
 
     script:
     """
@@ -254,17 +254,26 @@ process PlotQC {
 
     # Generate Axis
     knee = np.sort(adata.X.toarray().sum(axis=1).flatten())[::-1]
+    ranks = np.arange(knee.size)
+
+    # Fraction of UMIs kept with filter
+    total_cells = adata.shape[0]
+    kept_cells = (knee > ${params.cell_umi_threshold}).sum()
+    frac = kept_cells / total_cells
+
+    # Plot
     fig, ax = plt.subplots(figsize=(10, 7))
 
-    ax.loglog(knee, range(len(knee)),linewidth=5, color="g")
+    ax.loglog(knee, ranks, linewidth=5, color="g")
     ax.axvline(${params.cell_umi_threshold}, color="r", linestyle="--", linewidth=3)
 
     ax.set_xlabel("UMI Counts")
     ax.set_ylabel("Set of Barcodes")
+    ax.set_title("${sample_id} - Fraction of Droplets Kept: {kept} / {total} ({frac:.4f})".format(total=total_cells, kept=kept_cells, frac=frac))
 
     plt.grid(True, which="both")
     plt.tight_layout()
-    plt.savefig("rankplot.svg")
+    plt.savefig("${sample_id}_rankplot.svg")
     """
 }
 
