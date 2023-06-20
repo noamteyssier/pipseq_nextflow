@@ -193,7 +193,7 @@ process BuildH5AD {
 
     script:
     """
-    #!/bin/env python3
+    #!/usr/bin/env python3
 
     import scanpy as sc
     import anndata as ad
@@ -228,7 +228,7 @@ process PlotQC {
 
     script:
     """
-    #!/bin/env python3
+    #!/usr/bin/env python3
 
     import numpy as np
     import scanpy as sc
