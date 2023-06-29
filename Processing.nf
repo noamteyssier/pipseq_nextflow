@@ -305,7 +305,7 @@ process FilterNormLog {
     sc.pp.filter_genes(adata, min_counts=${params.gene_cell_threshold})
 
     # Set Raw Data
-    adata.raw = adata
+    adata.raw = adata.copy()
 
     # Normalize and Log
     sc.pp.normalize_total(adata, target_sum=1e4)
